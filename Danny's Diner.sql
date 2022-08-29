@@ -1,4 +1,4 @@
---1. The total amountspent eac h customer spent at the diner.
+--1. The total amount each customer spent at the diner.
 select customer_id, sum(price) total_sales
 from [Danny's Diner].dbo.sales sales
 join [Danny's Diner].dbo.menu menu
