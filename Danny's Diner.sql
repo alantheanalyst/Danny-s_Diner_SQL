@@ -1,4 +1,4 @@
---1. T total amount and time spent each customer spent at the diner.
+--1. The total amountspent eac h customer spent at the diner.
 select customer_id, sum(price) total_sales
 from [Danny's Diner].dbo.sales sales
 join [Danny's Diner].dbo.menu menu
@@ -6,7 +6,7 @@ join [Danny's Diner].dbo.menu menu
 group by customer_id
 order by total_sales
 
---2. Total amount of times a customer visited the diner.
+--2. The total amount of times a customer visited the diner.
 select customer_id, count(distinct order_date) total_visits
 from [Danny's Diner].dbo.sales
 group by customer_id
