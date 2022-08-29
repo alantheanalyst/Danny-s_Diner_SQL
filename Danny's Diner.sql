@@ -1,4 +1,4 @@
---1. Total amount and time spent each customer spent at the diner.
+--1. T total amount and time spent each customer spent at the diner.
 select customer_id, sum(price) total_sales
 from [Danny's Diner].dbo.sales sales
 join [Danny's Diner].dbo.menu menu
