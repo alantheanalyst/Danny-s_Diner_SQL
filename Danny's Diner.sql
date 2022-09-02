@@ -115,7 +115,7 @@ group by customer_id
 order by points
 
 --10. The number of points earned by customers A and B in January 
---w-Members get twice the points on all their purchases on the first week of their membership including the day they became a member.
+--Members get twice the points on all their purchases on the first week of their membership including the day they became a member.
 select sales.customer_id,
 sum(case
 	when order_date < join_date and sales.product_id in (2,3) then (price * 10)
