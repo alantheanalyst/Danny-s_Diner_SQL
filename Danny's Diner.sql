@@ -1,4 +1,4 @@
---1. The total amount each customer spent at the diner.
+--1. Total amount and time spent each customer spent at the diner.
 select customer_id, sum(price) total_sales
 from [Danny's Diner].dbo.sales sales
 join [Danny's Diner].dbo.menu menu
@@ -6,7 +6,7 @@ join [Danny's Diner].dbo.menu menu
 group by customer_id
 order by total_sales
 
---2. The total amount of times a customer visited the diner.
+--2. Total amount of times a customer visited the diner.
 select customer_id, count(distinct order_date) total_visits
 from [Danny's Diner].dbo.sales
 group by customer_id
@@ -39,12 +39,14 @@ where product_name = 'Ramen'
 group by customer_id, product_name
 order by ramen_count
 
+
+
 --5. The most popular item for each customer.
-select distinct customer_id, product_name, count(product_name) order_count
+select distinct customer_id, product_name, count(sales.product_id) order_count
 from [Danny's Diner].dbo.sales sales
 join [Danny's Diner].dbo.menu menu
 	on sales.product_id = menu.product_id
-where not customer_id = 'A' or not product_name in ('sushi', 'curry')
+where not customer_id = 'A' or not sales.product_id in (1, 2)
 group by customer_id, product_name
 order by customer_id, order_count desc
 
@@ -100,10 +102,10 @@ join [Danny's Diner].dbo.menu menu
 	on cte.product_id = menu.product_id
 group by cte.customer_id
 
---9. Points earned by each customer when each dollar spent = ten points and sushi includes a 2x multiplier. 
+--9. Points earned by each customer when each dollar spent = ten points and sushi includes a 2x multiplier.
 select customer_id,
 sum(case
-	when product_name in ('curry', 'ramen') then (price * 10)
+	when sales.product_id in (2, 3) then (price * 10)
 	else (price * 20)
 end) points
 from [Danny's Diner].dbo.sales sales
@@ -114,24 +116,20 @@ order by points
 
 --10. The number of points earned by customers A and B in January 
 --w-Members get twice the points on all their purchases on the first week of their membership including the day they became a member.
-with cte_points as
-(
-select sales.customer_id, join_date, order_date, product_id
+select sales.customer_id,
+sum(case
+	when order_date < join_date and sales.product_id in (2,3) then (price * 10)
+	when order_date < join_date and sales.product_id = 1 then (price * 20)
+	when order_date >= join_date and sales.product_id in (2,3) then (price * 20)
+	when order_date >= join_date and sales.product_id = 1 then (price * 400)
+end) points
 from [Danny's Diner].dbo.sales sales
+join [Danny's Diner].dbo.menu menu
+	on sales.product_id = menu.product_id
 join [Danny's Diner].dbo.members members
 	on sales.customer_id = members.customer_id
-where order_date >= join_date
-)
-select customer_id,
-sum(case
-	when product_name in ('curry', 'ramen') then (price * 20)
-	else (price * 400)
-end) points
-from cte_points cte
-join [Danny's Diner].dbo.menu menu
-	on cte.product_id = menu.product_id
 where order_date < '2021-02-01'
-group by customer_id
+group by sales.customer_id
 
 --11. Recreating the table according to Danny's specifications.
 select customer_id, order_date, product_name, price,
@@ -152,7 +150,7 @@ join [Danny's Diner].dbo.menu menu
 	on sales.product_id = menu.product_id
 order by customer_id asc, order_date asc, price desc
 
---Highest ranked items for each customer
+-- Highest ranked items for each customer
 select top 5 customer_id, product_name,
 case 
 	when customer_id = 'A' and order_date >= '2021-01-07' then 'Y'
